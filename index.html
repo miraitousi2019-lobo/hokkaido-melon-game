@@ -105,7 +105,10 @@ const ctx = canvas.getContext("2d");
 
 const COLS = 10;
 const ROWS = 20;
-const SIZE = Math.floor(window.innerWidth / 10);
+const SIZE = Math.min(
+    Math.floor(window.innerWidth / 12),
+    Math.floor((window.innerHeight - 200) / 20)
+);
 
 canvas.width = COLS * SIZE;
 canvas.height = ROWS * SIZE;
