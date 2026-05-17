@@ -320,9 +320,9 @@ function update(){
     }
 
     draw();
-   document.addEventListener("keydown", function(e){
+  document.addEventListener("keydown", function(e){
 
-    e.preventDefault();
+    if(e.repeat) return;
 
     if(e.key === "ArrowLeft"){
         move(-1);
@@ -333,11 +333,22 @@ function update(){
     }
 
     else if(e.key === "ArrowDown"){
-        dropFast();
+
+        piece.y++;
+
+        if(collide()){
+            piece.y--;
+        }
+
+        draw();
     }
 
     else if(e.code === "Space"){
+
         rotatePiece();
+    }
+
+});
     }
 
 });
