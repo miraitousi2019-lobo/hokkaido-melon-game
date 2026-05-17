@@ -337,7 +337,6 @@ function move(dir){
 
     draw();
 }
-
 function rotatePiece(){
 
     const rotated =
@@ -345,13 +344,18 @@ function rotatePiece(){
             piece.shape.map(r=>r[i]).reverse()
         );
 
-    const old = JSON.parse(JSON.stringify(piece.shape));
+    const old =
+        JSON.parse(JSON.stringify(piece.shape));
 
     piece.shape = rotated;
 
     if(collide()){
         piece.shape = old;
     }
+
+    draw();
+}
+
 
     draw();
 }
@@ -375,14 +379,11 @@ document.addEventListener("keydown", function(e){
     else if(e.key === "ArrowRight"){
         move(1);
     }
+else if(e.key === "ArrowDown"){
 
-    else if(e.key === "ArrowDown"){
-
-        else if(e.key === "ArrowDown"){      update(); }
-
-        if(collide()){
-            piece.y--;
-        }
+    update();
+}
+   
 
         draw();
     }
