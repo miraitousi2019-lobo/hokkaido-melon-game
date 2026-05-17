@@ -320,6 +320,28 @@ function update(){
     }
 
     draw();
+    document.addEventListener("keydown",(e)=>{
+
+    if(e.code==="ArrowLeft"){
+        move(-1);
+    }
+
+    if(e.code==="ArrowRight"){
+        move(1);
+    }
+
+    if(e.code==="ArrowDown"){
+        dropFast();
+    }
+
+    if(e.code==="Space"){
+
+        e.preventDefault();
+
+        rotatePiece();
+    }
+
+});
 }
 
 function draw(){
