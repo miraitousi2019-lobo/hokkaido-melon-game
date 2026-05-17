@@ -345,7 +345,7 @@ function rotatePiece(){
             piece.shape.map(r=>r[i]).reverse()
         );
 
-    const old = piece.shape;
+    const old = JSON.parse(JSON.stringify(piece.shape));
 
     piece.shape = rotated;
 
@@ -378,7 +378,7 @@ document.addEventListener("keydown", function(e){
 
     else if(e.key === "ArrowDown"){
 
-        piece.y++;
+        else if(e.key === "ArrowDown"){      update(); }
 
         if(collide()){
             piece.y--;
