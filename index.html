@@ -333,10 +333,13 @@ function move(dir){
 
     piece.x += dir;
 
-    if(collide()) piece.x -= dir;
+    if(collide()){
+        piece.x -= dir;
+    }
 
     draw();
 }
+
 function rotatePiece(){
 
     const rotated =
@@ -356,10 +359,6 @@ function rotatePiece(){
     draw();
 }
 
-
-    draw();
-}
-
 function dropFast(){
 
     update();
@@ -368,6 +367,7 @@ function dropFast(){
 setInterval(update,700);
 
 draw();
+
 document.addEventListener("keydown", function(e){
 
     if(e.repeat) return;
@@ -379,16 +379,14 @@ document.addEventListener("keydown", function(e){
     else if(e.key === "ArrowRight"){
         move(1);
     }
-else if(e.key === "ArrowDown"){
 
-    update();
-}
-   
-
-        draw();
+    else if(e.key === "ArrowDown"){
+        update();
     }
 
     else if(e.code === "Space"){
+
+        e.preventDefault();
 
         rotatePiece();
     }
