@@ -104,6 +104,10 @@ margin-bottom:90px;
 <button class="ctrl" onclick="dropFast()">⬇</button>
 </div>
 
+
+<audio id="clearSound" src="kira.mp3"></audio>
+<audio id="rotateSound" src="rotate.mp3"></audio>
+<audio id="dropSound" src="drop.mp3"></audio>
 <script>
 
 const canvas = document.getElementById("game");
@@ -258,7 +262,7 @@ function clearLines(){
     }
 
     if(lines){
-
+　　　　　　　　　　　　　　　　document.getElementById("clearSound").play();
         score += lines;
 
         document.getElementById("score")
