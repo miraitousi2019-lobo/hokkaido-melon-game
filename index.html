@@ -3,29 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-
 <title>北海道メロン祭り</title>
 
 <style>
-.ctrl:active{
-    transform:translateY(4px);
-}
-#soundBtn{
-    background:#ffb347;
-    border:none;
-    border-radius:10px;
-    padding:5px 10px;
-    font-size:20px;
-    cursor:pointer;
-}
-
-
-
-
-
-
-
-    
 body{
     margin:0;
     overflow:hidden;
@@ -46,18 +26,23 @@ body{
     color:#5b3b00;
 }
 
+#soundBtn{
+    background:#ffb347;
+    border:none;
+    border-radius:10px;
+    padding:5px 10px;
+    font-size:20px;
+    cursor:pointer;
+}
+
 #game{
     background:#fff8ea;
     display:block;
     margin:auto;
-    border-left:8px solid #8b5a2b;
-    border-right:8px solid #8b5a2b;
-    border-bottom:8px solid #8b5a2b;
-border-top:8px solid #8b5a2b;
-border-radius:12px;
-
+    border:8px solid #8b5a2b;
+    border-radius:12px;
     margin-top:10px;
-margin-bottom:90px;
+    margin-bottom:90px;
 }
 
 #message{
@@ -100,39 +85,33 @@ margin-bottom:90px;
 .ctrl:active{
     transform:translateY(4px);
 }
-
 </style>
 </head>
 
 <body>
 
-<div id="topUI"> <div>🍈 出荷: <span id="score">0</span></div> <div>🌈 連鎖祭り</div> <button id="soundBtn">🔊</button> </div>
+<div id="topUI">
+    <div>🍈 出荷: <span id="score">0</span></div>
+    <div>🌈 連鎖祭り</div>
     <button id="soundBtn">🔊</button>
-<div>🍈 出荷: <span id="score">0</span></div>
-<div>🌈 連鎖祭り</div>
 </div>
 
 <div id="message"></div>
 
 <canvas id="game"></canvas>
-    <audio id="clearSound" src="決定ボタンを押す21.mp3"></audio>
+
+<audio id="clearSound" src="決定ボタンを押す21.mp3"></audio>
 <audio id="rotateSound" src="カーソル移動12.mp3"></audio>
 <audio id="dropSound" src="ヒューンと落下.mp3"></audio>
-    
 
 <div id="controls">
-<button class="ctrl" onclick="move(-1)">◀</button>
-<button class="ctrl" onclick="rotatePiece()">🔄</button>
-<button class="ctrl" onclick="move(1)">▶</button>
-<button class="ctrl" onclick="dropFast()">⬇</button>
+    <button class="ctrl" onclick="move(-1)">◀</button>
+    <button class="ctrl" onclick="rotatePiece()">🔄</button>
+    <button class="ctrl" onclick="move(1)">▶</button>
+    <button class="ctrl" onclick="dropFast()">⬇</button>
 </div>
 
-
-<audio id="clearSound" src="kira.mp3"></audio>
-<audio id="rotateSound" src="rotate.mp3"></audio>
-<audio id="dropSound" src="drop.mp3"></audio>
 <script>
-
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -146,7 +125,7 @@ const SIZE = Math.min(
 canvas.width = COLS * SIZE;
 canvas.height = ROWS * SIZE;
 
-const fruits = ["🍈","🍓","🍊","🍇","🥝"];
+const fruits = ["🍈","🍓","🌽","🥔","🌾","🥬"];
 
 const shapes = [
     [[1,1],[1,1]],
@@ -156,64 +135,58 @@ const shapes = [
     [[0,1,1],[1,1,0]]
 ];
 
-let board = Array.from({length:ROWS},
-()=>Array(COLS).fill(""));
-
+let board = Array.from({length:ROWS},()=>Array(COLS).fill(""));
 let score = 0;
+let soundOn = true;
+
+function playSound(id){
+    if(!soundOn) return;
+
+    const sound = document.getElementById(id);
+
+    if(sound){
+        sound.currentTime = 0;
+        sound.play().catch(()=>{});
+    }
+}
+
+document.getElementById("soundBtn").addEventListener("click", ()=>{
+    soundOn = !soundOn;
+    document.getElementById("soundBtn").innerText = soundOn ? "🔊" : "🔇";
+});
 
 function createPiece(){
-
     return{
         x:3,
         y:0,
-        shape:shapes[Math.floor(Math.random()*shapes.length)],
+        shape:JSON.parse(JSON.stringify(shapes[Math.floor(Math.random()*shapes.length)])),
         fruit:fruits[Math.floor(Math.random()*fruits.length)]
-    }
+    };
 }
 
 let piece = createPiece();
 
 function drawBoard(){
-
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
     for(let y=0;y<ROWS;y++){
-
         for(let x=0;x<COLS;x++){
-
             ctx.strokeStyle="#ddd";
-
-            ctx.strokeRect(
-                x*SIZE,
-                y*SIZE,
-                SIZE,
-                SIZE
-            );
+            ctx.strokeRect(x*SIZE,y*SIZE,SIZE,SIZE);
 
             if(board[y][x]){
-
                 ctx.font=(SIZE-4)+"px serif";
-
-                ctx.fillText(
-                    board[y][x],
-                    x*SIZE+2,
-                    y*SIZE+SIZE-4
-                );
+                ctx.fillText(board[y][x],x*SIZE+2,y*SIZE+SIZE-4);
             }
         }
     }
 }
 
 function drawPiece(){
-
     piece.shape.forEach((row,dy)=>{
-
         row.forEach((v,dx)=>{
-
             if(v){
-
                 ctx.font=(SIZE-4)+"px serif";
-
                 ctx.fillText(
                     piece.fruit,
                     (piece.x+dx)*SIZE+2,
@@ -224,14 +197,15 @@ function drawPiece(){
     });
 }
 
+function draw(){
+    drawBoard();
+    drawPiece();
+}
+
 function collide(){
-
     for(let y=0;y<piece.shape.length;y++){
-
         for(let x=0;x<piece.shape[y].length;x++){
-
             if(piece.shape[y][x]){
-
                 let nx = piece.x+x;
                 let ny = piece.y+y;
 
@@ -246,52 +220,36 @@ function collide(){
             }
         }
     }
-
     return false;
 }
 
 function merge(){
-
     piece.shape.forEach((row,dy)=>{
-
         row.forEach((v,dx)=>{
-
-            if(v){
-
-                board[piece.y+dy][piece.x+dx]
-                    = piece.fruit;
+            if(v && piece.y+dy >= 0){
+                board[piece.y+dy][piece.x+dx] = piece.fruit;
             }
         });
     });
 }
 
 function clearLines(){
-
     let lines = 0;
 
     for(let y=ROWS-1;y>=0;y--){
-
         if(board[y].every(c=>c!="")){
-
             board.splice(y,1);
-
-            board.unshift(
-                Array(COLS).fill("")
-            );
-
+            board.unshift(Array(COLS).fill(""));
             lines++;
             y++;
         }
     }
 
     if(lines){
-playSound("clearSound");
-        
-        if(soundOn){     document.getElementById("clearSound").play(); }
-        score += lines;
+        playSound("clearSound");
 
-        document.getElementById("score")
-            .innerText = score;
+        score += lines;
+        document.getElementById("score").innerText = score;
 
         const msgs = [
             "🍈 北海道ぉぉ！！",
@@ -301,16 +259,12 @@ playSound("clearSound");
             "🐻 熊出没注意！！"
         ];
 
-        showMessage(
-            msgs[Math.floor(Math.random()*msgs.length)]
-        );
+        showMessage(msgs[Math.floor(Math.random()*msgs.length)]);
     }
 }
 
 function showMessage(text){
-
     const m = document.getElementById("message");
-
     m.innerText = text;
 
     setTimeout(()=>{
@@ -319,60 +273,27 @@ function showMessage(text){
 }
 
 function update(){
-
     piece.y++;
 
     if(collide()){
-
         piece.y--;
-
         merge();
-
+        playSound("dropSound");
         clearLines();
-
         piece = createPiece();
 
         if(collide()){
-
             alert("🍈 ゲームオーバー！");
-
-            board = Array.from(
-                {length:ROWS},
-                ()=>Array(COLS).fill("")
-            );
-
+            board = Array.from({length:ROWS},()=>Array(COLS).fill(""));
             score = 0;
-
-            document.getElementById("score")
-                .innerText = 0;
+            document.getElementById("score").innerText = 0;
         }
     }
 
     draw();
-    function playSound(id){
-
-    if(!soundOn) return;
-
-    const sound = document.getElementById(id);
-
-    if(sound){
-
-        sound.currentTime = 0;
-
-        sound.play();
-    }
-}
-
-}
-function draw(){
-
-    drawBoard();
-
-    drawPiece();
 }
 
 function move(dir){
-
     piece.x += dir;
 
     if(collide()){
@@ -383,69 +304,47 @@ function move(dir){
 }
 
 function rotatePiece(){
+    const old = JSON.parse(JSON.stringify(piece.shape));
 
     const rotated =
         piece.shape[0].map((_,i)=>
             piece.shape.map(r=>r[i]).reverse()
         );
 
-    const old =
-        JSON.parse(JSON.stringify(piece.shape));
-
-
-    playSound("rotateSound");
     piece.shape = rotated;
 
     if(collide()){
         piece.shape = old;
+    }else{
+        playSound("rotateSound");
     }
 
     draw();
 }
 
 function dropFast(){
-
     update();
 }
 
 setInterval(update,700);
 
-draw();
-let soundOn = true;
-
-document.getElementById("soundBtn")
-.addEventListener("click", ()=>{
-
-    soundOn = !soundOn;
-
-    document.getElementById("soundBtn")
-        .innerText = soundOn ? "🔊" : "🔇";
-});
-    
 document.addEventListener("keydown", function(e){
-
-    
-
     if(e.key === "ArrowLeft"){
         move(-1);
     }
-
     else if(e.key === "ArrowRight"){
         move(1);
     }
-
     else if(e.key === "ArrowDown"){
         update();
     }
-
     else if(e.code === "Space"){
-
         e.preventDefault();
-
         rotatePiece();
     }
-
 });
+
+draw();
 </script>
 
 </body>
