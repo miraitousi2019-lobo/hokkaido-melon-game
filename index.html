@@ -7,7 +7,25 @@
 <title>北海道メロン祭り</title>
 
 <style>
+.ctrl:active{
+    transform:translateY(4px);
+}
+#soundBtn{
+    background:#ffb347;
+    border:none;
+    border-radius:10px;
+    padding:5px 10px;
+    font-size:20px;
+    cursor:pointer;
+}
 
+
+
+
+
+
+
+    
 body{
     margin:0;
     overflow:hidden;
@@ -89,6 +107,7 @@ margin-bottom:90px;
 <body>
 
 <div id="topUI">
+    <button id="soundBtn">🔊</button>
 <div>🍈 出荷: <span id="score">0</span></div>
 <div>🌈 連鎖祭り</div>
 </div>
@@ -262,7 +281,7 @@ function clearLines(){
     }
 
     if(lines){
-　　　　　　　　　　　　　　　　document.getElementById("clearSound").play();
+　　　　　　　　　　　　　　　　if(soundOn){     document.getElementById("clearSound").play(); }
         score += lines;
 
         document.getElementById("score")
@@ -371,7 +390,17 @@ function dropFast(){
 setInterval(update,700);
 
 draw();
+let soundOn = true;
 
+document.getElementById("soundBtn")
+.addEventListener("click", ()=>{
+
+    soundOn = !soundOn;
+
+    document.getElementById("soundBtn")
+        .innerText = soundOn ? "🔊" : "🔇";
+});
+    
 document.addEventListener("keydown", function(e){
 
     
