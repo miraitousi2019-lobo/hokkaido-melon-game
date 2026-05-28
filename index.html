@@ -243,6 +243,22 @@ function merge(){
     });
 }
 
+function applyGravity(){
+    for(let x=0; x<COLS; x++){
+        let stack = [];
+
+        for(let y=ROWS-1; y>=0; y--){
+            if(board[y][x] !== ""){
+                stack.push(board[y][x]);
+            }
+        }
+
+        for(let y=ROWS-1; y>=0; y--){
+            board[y][x] = stack.length ? stack.shift() : "";
+        }
+    }
+}
+
 function clearLines(){
     let rowsToClear = [];
 
@@ -262,9 +278,10 @@ function clearLines(){
             rowsToClear.sort((a,b)=>b-a);
 
             rowsToClear.forEach(y=>{
-                board.splice(y,1);
-                board.unshift(Array(COLS).fill(""));
+                board[y] = Array(COLS).fill("");
             });
+
+            applyGravity();
 
             flashRows = [];
 
@@ -276,9 +293,20 @@ function clearLines(){
                 "📦 全国発送！！",
                 "✨ 夕張メローーン！！",
                 "🌈 北海道フィーバー！！",
-                "🐻 熊出没注意！！"
+                "🥔 名産品なだれ！！"
             ];
 
+            showMessage(msgs[Math.floor(Math.random()*msgs.length)]);
+
+            draw();
+
+            setTimeout(()=>{
+                clearLines();
+            },200);
+
+        },300);
+    }
+}
             showMessage(msgs[Math.floor(Math.random()*msgs.length)]);
 
             draw();
