@@ -138,9 +138,11 @@ const shapes = [
 let board = Array.from({length:ROWS},()=>Array(COLS).fill(""));
 let score = 0;
 let soundOn = true;
-
+let flashRows = [];
+    
 function playSound(id){
     if(!soundOn) return;
+   
 
     const sound = document.getElementById(id);
 
@@ -174,6 +176,16 @@ function drawBoard(){
             ctx.strokeStyle="#ddd";
             ctx.strokeRect(x*SIZE,y*SIZE,SIZE,SIZE);
 
+            if(flashRows.includes(y)){
+                ctx.fillStyle="rgba(255, 255, 0, 0.45)";
+                ctx.fillRect(x*SIZE,y*SIZE,SIZE,SIZE);
+
+                ctx.strokeStyle="#ff6600";
+                ctx.lineWidth=4;
+                ctx.strokeRect(x*SIZE+2,y*SIZE+2,SIZE-4,SIZE-4);
+                ctx.lineWidth=1;
+            }
+
             if(board[y][x]){
                 ctx.font=(SIZE-4)+"px serif";
                 ctx.fillText(board[y][x],x*SIZE+2,y*SIZE+SIZE-4);
@@ -181,7 +193,7 @@ function drawBoard(){
         }
     }
 }
-
+    
 function drawPiece(){
     piece.shape.forEach((row,dy)=>{
         row.forEach((v,dx)=>{
@@ -234,17 +246,72 @@ function merge(){
 }
 
 function clearLines(){
-    let lines = 0;
+    let rowsToClear = [];
 
     for(let y=ROWS-1;y>=0;y--){
         if(board[y].every(c=>c!="")){
-            board.splice(y,1);
-            board.unshift(Array(COLS).fill(""));
-            lines++;
-            y++;
+            rowsToClear.push(y);
         }
     }
 
+    if(rowsToClear.length){
+        flashRows = rowsToClear;
+        draw();
+
+        playSound("clearSound");
+
+        setTimeout(()=>{
+            rowsToClear.sort((a,b)=>b-a);
+
+            rowsToClear.forEach(y=>{
+                board.splice(y,1);
+                board.unshift(Array(COLS).fill(""));
+            });
+
+            flashRows = [];
+
+            score += rowsToClear.length;
+            document.getElementById("score").innerText = score;
+
+            const msgs = [
+                "🍈 北海道ぉぉ！！",
+                "📦 全国発送！！",
+                "✨ 夕張メローーン！！",
+                "🌈 北海道フィーバー！！",
+                "🐻 熊出没注意！！"
+            ];
+
+            showMessage(msgs[Math.floor(Math.random()*msgs.length)]);
+
+            draw();
+        },300);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     if(lines){
         playSound("clearSound");
 
