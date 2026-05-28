@@ -115,6 +115,10 @@ margin-bottom:90px;
 <div id="message"></div>
 
 <canvas id="game"></canvas>
+    <audio id="clearSound" src="決定ボタンを押す21.mp3"></audio>
+<audio id="rotateSound" src="カーソル移動12.mp3"></audio>
+<audio id="dropSound" src="ヒューンと落下.mp3"></audio>
+    
 
 <div id="controls">
 <button class="ctrl" onclick="move(-1)">◀</button>
@@ -281,7 +285,9 @@ function clearLines(){
     }
 
     if(lines){
-　　　　　　　　　　　　　　　　if(soundOn){     document.getElementById("clearSound").play(); }
+playSound("clearSound");
+        
+        if(soundOn){     document.getElementById("clearSound").play(); }
         score += lines;
 
         document.getElementById("score")
@@ -343,6 +349,19 @@ function update(){
     }
 
     draw();
+    function playSound(id){
+
+    if(!soundOn) return;
+
+    const sound = document.getElementById(id);
+
+    if(sound){
+
+        sound.currentTime = 0;
+
+        sound.play();
+    }
+}
 
 }
 function draw(){
@@ -373,6 +392,8 @@ function rotatePiece(){
     const old =
         JSON.parse(JSON.stringify(piece.shape));
 
+
+    playSound("rotateSound");
     piece.shape = rotated;
 
     if(collide()){
