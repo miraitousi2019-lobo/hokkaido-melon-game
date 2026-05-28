@@ -186,7 +186,7 @@ function drawBoard(){
 
             if(board[y][x]){
                 ctx.font=(SIZE-4)+"px serif";
-                ctx.fillText(board[y][x],x*SIZE+2,y*SIZE+SIZE-4);
+                ctx.fillStyle="#000"; ctx.fillText(board[y][x],x*SIZE+2,y*SIZE+SIZE-4);
             }
         }
     }
@@ -197,6 +197,7 @@ function drawPiece(){
         row.forEach((v,dx)=>{
             if(v){
                 ctx.font=(SIZE-4)+"px serif";
+                ctx.fillStyle="#000";
                 ctx.fillText(
                     piece.fruit,
                     (piece.x+dx)*SIZE+2,
