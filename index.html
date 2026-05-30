@@ -308,7 +308,7 @@ function clearLines(){
     draw();
 
     playSound("clearSound");
-    showMessage(chainCount + "連鎖！🥔 名産品なだれ！！");
+    const melonNames = [     "アサヒメロン",     "夕張メロン",     "富良野メロン",     "厚沢部メロン",     "太陽の華",     "太陽の王様",     "比布メロン" ];  showMessage(     chainCount + "連鎖！ 🍈 " +     melonNames[Math.floor(Math.random()*melonNames.length)] +     " 出荷！" );
 
     setTimeout(()=>{
         rowsToClear.forEach(y=>{
@@ -326,9 +326,9 @@ function clearLines(){
 
         setTimeout(()=>{
             clearLines();
-        },700);
+        },1300);
 
-    },450);
+    },900);
 }
 
 function showMessage(text){
