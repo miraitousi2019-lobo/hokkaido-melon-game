@@ -275,7 +275,21 @@ function applyGravity(){
         }
     }
 }
+function settleGravity(){
+    for(let x=0; x<COLS; x++){
+        let stack = [];
 
+        for(let y=ROWS-1; y>=0; y--){
+            if(board[y][x] !== ""){
+                stack.push(board[y][x]);
+            }
+        }
+
+        for(let y=ROWS-1; y>=0; y--){
+            board[y][x] = stack.length ? stack.shift() : "";
+        }
+    }
+}
 function clearLines(){
     let rowsToClear = [];
 
@@ -308,7 +322,9 @@ function clearLines(){
             draw();
 
             setTimeout(()=>{
-                clearLines();
+                merge();
+settleGravity();
+clearLines();
             },200);
 
         },300);
