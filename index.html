@@ -123,7 +123,7 @@ const SIZE = Math.max(18, Math.min(
 canvas.width = COLS * SIZE;
 canvas.height = ROWS * SIZE;
 
-const fruits = ["🍈","🍓","🌽","🥔","🌾","🥬"];
+const fruits = [     "🍈",     "🍓",     "🥝",     "🍊",     "🍎",     "🍑" ];
 
 const shapes = [
     [[1,1],[1,1]],
@@ -364,7 +364,6 @@ function update(){
     if(collide()){
         piece.y--;
         merge();
-        settleGravity();
         clearLines();
         piece = createPiece();
 
