@@ -106,7 +106,7 @@ body{
     <button class="ctrl" onclick="move(-1)">◀</button>
     <button class="ctrl" onclick="rotatePiece()">🔄</button>
     <button class="ctrl" onclick="move(1)">▶</button>
-    <button class="ctrl" onclick="dropFast()">⬇</button>
+    <button class="ctrl" id="downBtn">⬇</button>
 </div>
 
 <script>
@@ -390,6 +390,30 @@ document.addEventListener("keydown", function(e){
 });
 
 draw();
+    let downInterval = null;
+
+const downBtn = document.getElementById("downBtn");
+
+downBtn.addEventListener("mousedown", ()=>{
+    downInterval = setInterval(update,80);
+});
+
+downBtn.addEventListener("mouseup", ()=>{
+    clearInterval(downInterval);
+});
+
+downBtn.addEventListener("mouseleave", ()=>{
+    clearInterval(downInterval);
+});
+
+downBtn.addEventListener("touchstart", (e)=>{
+    e.preventDefault();
+    downInterval = setInterval(update,80);
+});
+
+downBtn.addEventListener("touchend", ()=>{
+    clearInterval(downInterval);
+});
 </script>
 
 </body>
