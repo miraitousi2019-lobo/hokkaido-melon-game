@@ -137,12 +137,13 @@ let board = Array.from({length:ROWS},()=>Array(COLS).fill(""));
 let score = 0;
 let soundOn = true;
 let flashRows = [];
+let chainCount = 0;
+let isClearing = false;
+let gameTimer = setInterval(update,700);
 
 function playSound(id){
     if(!soundOn) return;
-
     const sound = document.getElementById(id);
-
     if(sound){
         sound.currentTime = 0;
         sound.play().catch(()=>{});
@@ -168,6 +169,22 @@ let piece = createPiece();
 function drawBoard(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
+    const flashColors = [
+        "rgba(255, 255, 0, 0.45)",
+        "rgba(0, 200, 255, 0.45)",
+        "rgba(255, 80, 180, 0.45)",
+        "rgba(120, 255, 120, 0.45)",
+        "rgba(255, 150, 0, 0.45)"
+    ];
+
+    const borderColors = [
+        "#ff6600",
+        "#008cff",
+        "#ff1493",
+        "#00aa44",
+        "#ff9900"
+    ];
+
     for(let y=0;y<ROWS;y++){
         for(let x=0;x<COLS;x++){
             ctx.strokeStyle="#ddd";
@@ -175,10 +192,10 @@ function drawBoard(){
             ctx.strokeRect(x*SIZE,y*SIZE,SIZE,SIZE);
 
             if(flashRows.includes(y)){
-                ctx.fillStyle="rgba(255, 255, 0, 0.45)";
+                ctx.fillStyle = flashColors[chainCount % flashColors.length];
                 ctx.fillRect(x*SIZE,y*SIZE,SIZE,SIZE);
 
-                ctx.strokeStyle="#ff6600";
+                ctx.strokeStyle = borderColors[chainCount % borderColors.length];
                 ctx.lineWidth=4;
                 ctx.strokeRect(x*SIZE+2,y*SIZE+2,SIZE-4,SIZE-4);
                 ctx.lineWidth=1;
@@ -186,7 +203,8 @@ function drawBoard(){
 
             if(board[y][x]){
                 ctx.font=(SIZE-4)+"px serif";
-                ctx.fillStyle="#000"; ctx.fillText(board[y][x],x*SIZE+2,y*SIZE+SIZE-4);
+                ctx.fillStyle="#000";
+                ctx.fillText(board[y][x],x*SIZE+2,y*SIZE+SIZE-4);
             }
         }
     }
@@ -244,37 +262,6 @@ function merge(){
     });
 }
 
-function applyGravity(){
-    for(let x=0; x<COLS; x++){
-        let stack = [];
-
-        for(let y=ROWS-1; y>=0; y--){
-            if(board[y][x] !== ""){
-                stack.push(board[y][x]);
-            }
-        }
-
-        for(let y=ROWS-1; y>=0; y--){
-            board[y][x] = stack.length ? stack.shift() : "";
-        }
-    }
-}
-
-function applyGravity(){
-    for(let x=0; x<COLS; x++){
-        let stack = [];
-
-        for(let y=ROWS-1; y>=0; y--){
-            if(board[y][x] !== ""){
-                stack.push(board[y][x]);
-            }
-        }
-
-        for(let y=ROWS-1; y>=0; y--){
-            board[y][x] = stack.length ? stack.shift() : "";
-        }
-    }
-}
 function settleGravity(){
     for(let x=0; x<COLS; x++){
         let stack = [];
@@ -290,7 +277,8 @@ function settleGravity(){
         }
     }
 }
-function clearLines(){
+
+function findFullRows(){
     let rowsToClear = [];
 
     for(let y=ROWS-1;y>=0;y--){
@@ -299,36 +287,48 @@ function clearLines(){
         }
     }
 
-    if(rowsToClear.length){
-        flashRows = rowsToClear;
+    return rowsToClear;
+}
+
+function clearLines(){
+    const rowsToClear = findFullRows();
+
+    if(!rowsToClear.length){
+        isClearing = false;
+        flashRows = [];
+        chainCount = 0;
+        draw();
+        return;
+    }
+
+    isClearing = true;
+    chainCount++;
+
+    flashRows = rowsToClear;
+    draw();
+
+    playSound("clearSound");
+    showMessage(chainCount + "連鎖！🥔 名産品なだれ！！");
+
+    setTimeout(()=>{
+        rowsToClear.forEach(y=>{
+            board[y] = Array(COLS).fill("");
+        });
+
+        settleGravity();
+
+        flashRows = [];
+
+        score += rowsToClear.length;
+        document.getElementById("score").innerText = score;
+
         draw();
 
-        playSound("clearSound");
-
         setTimeout(()=>{
-            rowsToClear.forEach(y=>{
-                board[y] = Array(COLS).fill("");
-            });
+            clearLines();
+        },700);
 
-            applyGravity();
-
-            flashRows = [];
-
-            score += rowsToClear.length;
-            document.getElementById("score").innerText = score;
-
-            showMessage("🥔 名産品なだれ！！");
-
-            draw();
-
-            setTimeout(()=>{
-                merge();
-settleGravity();
-clearLines();
-            },200);
-
-        },300);
-    }
+    },450);
 }
 
 function showMessage(text){
@@ -340,20 +340,37 @@ function showMessage(text){
     },1500);
 }
 
+function gameOver(){
+    alert("🍈 ゲームオーバー！");
+
+    clearInterval(gameTimer);
+    board = Array.from({length:ROWS},()=>Array(COLS).fill(""));
+    score = 0;
+    chainCount = 0;
+    flashRows = [];
+    isClearing = false;
+    document.getElementById("score").innerText = 0;
+
+    piece = createPiece();
+    gameTimer = setInterval(update,700);
+    draw();
+}
+
 function update(){
+    if(isClearing) return;
+
     piece.y++;
 
     if(collide()){
         piece.y--;
         merge();
+        settleGravity();
         clearLines();
         piece = createPiece();
 
         if(collide()){
-            alert("🍈 ゲームオーバー！");
-            board = Array.from({length:ROWS},()=>Array(COLS).fill(""));
-            score = 0;
-            document.getElementById("score").innerText = 0;
+            gameOver();
+            return;
         }
     }
 
@@ -361,6 +378,8 @@ function update(){
 }
 
 function move(dir){
+    if(isClearing) return;
+
     piece.x += dir;
 
     if(collide()){
@@ -371,6 +390,8 @@ function move(dir){
 }
 
 function rotatePiece(){
+    if(isClearing) return;
+
     const old = JSON.parse(JSON.stringify(piece.shape));
 
     const rotated =
@@ -393,8 +414,6 @@ function dropFast(){
     update();
 }
 
-setInterval(update,700);
-
 document.addEventListener("keydown", function(e){
     if(e.key === "ArrowLeft"){
         move(-1);
@@ -411,31 +430,36 @@ document.addEventListener("keydown", function(e){
     }
 });
 
-draw();
-    let downInterval = null;
-
+let downInterval = null;
 const downBtn = document.getElementById("downBtn");
 
 downBtn.addEventListener("mousedown", ()=>{
+    if(downInterval) return;
     downInterval = setInterval(update,80);
 });
 
 downBtn.addEventListener("mouseup", ()=>{
     clearInterval(downInterval);
+    downInterval = null;
 });
 
 downBtn.addEventListener("mouseleave", ()=>{
     clearInterval(downInterval);
+    downInterval = null;
 });
 
 downBtn.addEventListener("touchstart", (e)=>{
     e.preventDefault();
+    if(downInterval) return;
     downInterval = setInterval(update,80);
 });
 
 downBtn.addEventListener("touchend", ()=>{
     clearInterval(downInterval);
+    downInterval = null;
 });
+
+draw();
 </script>
 
 </body>
