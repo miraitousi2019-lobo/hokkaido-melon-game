@@ -98,9 +98,10 @@ body{
 
 <canvas id="game"></canvas>
 
-<audio id="clearSound" src="決定ボタンを押す21.mp3"></audio>
-<audio id="rotateSound" src="カーソル移動12.mp3"></audio>
-<audio id="dropSound" src="ヒューンと落下.mp3"></audio>
+<audio id="clearSound" src="0601 収穫収穫.MP3"></audio>
+<audio id="rotateSound" src="0601くるっ.MP3"></audio>
+<audio id="dropSound" src="0601ぼとっ.MP3"></audio>
+<audio id="moveSound" src="0601よいしょっ！.MP3"></audio>
 
 <div id="controls">
     <button class="ctrl" onclick="move(-1)">◀</button>
@@ -123,7 +124,17 @@ const SIZE = Math.max(18, Math.min(
 canvas.width = COLS * SIZE;
 canvas.height = ROWS * SIZE;
 
-const fruits = [     "🍈",     "🍓",     "🥝",     "🍊",     "🍎",     "🍑" ];
+const fruits = ["🍈","🍈","🍈","🍈","🍓","🥝","🍊","🍎","🍑"];
+
+const melonNames = [
+    "アサヒメロン",
+    "夕張メロン",
+    "富良野メロン",
+    "厚沢部メロン",
+    "太陽の華",
+    "太陽の王様",
+    "比布メロン"
+];
 
 const shapes = [
     [[1,1],[1,1]],
@@ -143,7 +154,9 @@ let gameTimer = setInterval(update,700);
 
 function playSound(id){
     if(!soundOn) return;
+
     const sound = document.getElementById(id);
+
     if(sound){
         sound.currentTime = 0;
         sound.play().catch(()=>{});
@@ -260,6 +273,8 @@ function merge(){
             }
         });
     });
+
+    playSound("dropSound");
 }
 
 function settleGravity(){
@@ -308,13 +323,20 @@ function clearLines(){
     draw();
 
     playSound("clearSound");
-    const melonNames = [     "アサヒメロン",     "夕張メロン",     "富良野メロン",     "厚沢部メロン",     "太陽の華",     "太陽の王様",     "比布メロン" ];  showMessage(     chainCount + "連鎖！ 🍈 " +     melonNames[Math.floor(Math.random()*melonNames.length)] +     " 出荷！" );
+
+    const selectedMelon =
+        melonNames[Math.floor(Math.random()*melonNames.length)];
+
+    showMessage(
+        chainCount + "連鎖！ 🍈 " + selectedMelon + " 出荷！"
+    );
 
     setTimeout(()=>{
         rowsToClear.forEach(y=>{
             board[y] = Array(COLS).fill("");
         });
 
+        // 消えた時だけ重力発生
         settleGravity();
 
         flashRows = [];
@@ -337,7 +359,7 @@ function showMessage(text){
 
     setTimeout(()=>{
         m.innerText="";
-    },1500);
+    },1700);
 }
 
 function gameOver(){
@@ -364,7 +386,10 @@ function update(){
     if(collide()){
         piece.y--;
         merge();
+
+        // 着地時は重力なし
         clearLines();
+
         piece = createPiece();
 
         if(collide()){
@@ -383,6 +408,8 @@ function move(dir){
 
     if(collide()){
         piece.x -= dir;
+    }else{
+        playSound("moveSound");
     }
 
     draw();
